@@ -1,0 +1,6 @@
+# elm-repl generated files
+repl-temp-*
+elm-stuff/
+elm.js
+bingo.js
+node_modules/
