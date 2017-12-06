@@ -1,6 +1,7 @@
 module Bingo exposing (..)
 
-import Html 
+import Html exposing (..) 
+import Html.Attributes exposing (..)
 
 --main = 
 --    Html.text (String.repeat 3 (String.toUpper "Another New Elm Application! "))
@@ -8,12 +9,33 @@ import Html
 playerInfo name gameNumber =
     name ++ " Game number " ++ gameNumber
 
-String -> number -> String
-playerInfoText name gameNumber =
+viewPlayer name gameNumber =
+   let
+    playerInfoText =
     playerInfo name gameNumber 
         |> String.toUpper
-        |> Html.text
-main = 
-    playerInfoText "Zacck" 2 
+        |> text
+   in   
+    h2 [ id "info", class "classy"]
+    [ playerInfoText ]
+
+viewHeader title =
+   header [] 
+   [ h1 [] [ text title ] ]
+
+viewFooter =
+   footer [] 
+   [a [href "http://github.com/zacck"]
+      [text "Built by Zacck"]
+   ]
+
+view =
+    div [ class "content" ]
+    [ viewHeader "MOFO Bingo",
+      viewPlayer "Nicole" "5",
+      viewFooter
+    ]
 
 
+main =
+   view
