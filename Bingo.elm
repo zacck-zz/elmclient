@@ -3,14 +3,25 @@ module Bingo exposing (..)
 import Html exposing (..) 
 import Html.Attributes exposing (..)
 
---main = 
---    Html.text (String.repeat 3 (String.toUpper "Another New Elm Application! "))
+-- MODEL 
+initialModel = 
+    { name = "Zacck"
+    , gameNumber = 1 
+    , entries = initialEntries
+    }
 
-playerInfo : String -> String -> String
+initialEntries = [
+    { id = 1, phrase = "Wacky Wack", points = 230, marked = False }
+    , { id = 2, phrase = "Wacky Wacker", points = 240, marked = False }
+    ]
+
+-- VIEW
+
+playerInfo : String -> Int -> String
 playerInfo name gameNumber =
-    name ++ " Game number " ++ gameNumber
+    name ++ " Game number " ++ (toString gameNumber)
 
-viewPlayer : String -> String -> Html msg 
+viewPlayer : String -> Int -> Html msg 
 viewPlayer name gameNumber =
    let
     playerInfoText =
@@ -33,14 +44,14 @@ viewFooter =
       [text "Built by Zacck"]
    ]
 
-view : Html msg
-view =
+view model =
     div [ class "content" ]
-    [ viewHeader "MOFO Bingo",
-      viewPlayer "Nicole" "5",
-      viewFooter
+    [ viewHeader "MOFO Bingo"
+    , viewPlayer model.name model.gameNumber
+    , div [ class "debug" ] [text (toString model)]
+    , viewFooter
     ]
 
 main : Html msg
 main =
-   view
+   view initialModel
