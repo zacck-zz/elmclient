@@ -23,9 +23,11 @@ initialModel =
     , entries = initialEntries
     }
 initialEntries : List Entry
-initialEntries = [
-    { id = 1, phrase = "Wacky Wack", points = 230, marked = False }
-    , { id = 2, phrase = "Wacky Wacker", points = 240, marked = False }
+initialEntries = 
+    [ Entry  1 "Wacky Wack" 230 False
+    , Entry 2 "Johny Cee" 240 False 
+    , Entry 3 "Stella Pupp" 340 True
+    , Entry 4 "Bowee Dee" 300 False
     ]
 
 -- VIEW
