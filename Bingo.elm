@@ -58,12 +58,26 @@ viewFooter =
    [a [href "http://github.com/zacck"]
       [text "Built by Zacck"]
    ]
+  
+viewEntryItem : Entry -> Html msg
+viewEntryItem item = 
+  li []
+    [ span [ class "phrase" ][ text item.phrase ]
+    , span [ class "points" ][ text (toString item.points)]
+    ]
+
+viewEntryList : List Entry -> Html msg
+viewEntryList entries = 
+  entries
+    |> List.map viewEntryItem
+    |> ul []
+  
 view : Model -> Html msg
 view model =
     div [ class "content" ]
     [ viewHeader "MOFO Bingo"
     , viewPlayer model.name model.gameNumber
-    , div [ class "debug" ] [text (toString model)]
+    , viewEntryList model.entries
     , viewFooter
     ]
 
