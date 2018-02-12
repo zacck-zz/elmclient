@@ -3,13 +3,26 @@ module Bingo exposing (..)
 import Html exposing (..) 
 import Html.Attributes exposing (..)
 
+type alias Model = 
+  { name  : String
+  , gameNumber : Int 
+  , entries: List Entry
+  }
+  
+type alias Entry = 
+  { id : Int
+  , phrase : String
+  , points : Int
+  , marked :  Bool
+  }
 -- MODEL 
+initialModel : Model
 initialModel = 
     { name = "Zacck"
     , gameNumber = 1 
     , entries = initialEntries
     }
-
+initialEntries : List Entry
 initialEntries = [
     { id = 1, phrase = "Wacky Wack", points = 230, marked = False }
     , { id = 2, phrase = "Wacky Wacker", points = 240, marked = False }
@@ -43,7 +56,7 @@ viewFooter =
    [a [href "http://github.com/zacck"]
       [text "Built by Zacck"]
    ]
-
+view : Model -> Html msg
 view model =
     div [ class "content" ]
     [ viewHeader "MOFO Bingo"
