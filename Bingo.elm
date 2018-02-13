@@ -68,9 +68,11 @@ viewEntryItem item =
 
 viewEntryList : List Entry -> Html msg
 viewEntryList entries = 
-  entries
-    |> List.map viewEntryItem
-    |> ul []
+  let 
+    entryItems = 
+     List.map viewEntryItem entries
+  in
+    ul [] entryItems
   
 view : Model -> Html msg
 view model =
