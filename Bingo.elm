@@ -26,9 +26,10 @@ initialModel =
     }
 initialEntries : List Entry
 initialEntries = 
+    List.sortBy .points
     [ Entry  1 "Wacky Wack" 230 False
-    , Entry 2 "Johny Cee" 240 False 
-    , Entry 3 "Stella Pupp" 340 True
+    , Entry 2 "Johny Cee" 220 False 
+    , Entry 3 "Stella Pupp" 3400 True
     , Entry 4 "Bowee Dee" 300 False
     ]
     
@@ -36,13 +37,23 @@ initialEntries =
     
 -- UPDATE 
 
-type Msg = NewGame 
+type Msg = NewGame | Mark Int
 
 update : Msg -> Model -> Model
 update msg model = 
     case msg of 
       NewGame -> 
-        { model | gameNumber = model.gameNumber + 1 }
+        { model | gameNumber = model.gameNumber + 1, 
+                  entries = initialEntries }
+      Mark id ->
+        let 
+          markEntry e = 
+            if e.id == id then 
+              { e | marked = (not e.marked)}
+            else
+              e  
+        in
+          { model | entries = List.map markEntry model.entries }
 
 -- VIEW
 
@@ -75,7 +86,7 @@ viewFooter =
   
 viewEntryItem : Entry -> Html Msg
 viewEntryItem item = 
-  li []
+  li [  classList [ ("marked", item.marked) ], onClick (Mark item.id) ]
     [ span [ class "phrase" ][ text item.phrase ]
     , span [ class "points" ][ text (toString item.points)]
     ]
