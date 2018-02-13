@@ -2,6 +2,8 @@ module Bingo exposing (..)
 
 import Html exposing (..) 
 import Html.Attributes exposing (..)
+import Html.Events exposing(onClick)
+
 
 type alias Model = 
   { name  : String
@@ -29,6 +31,18 @@ initialEntries =
     , Entry 3 "Stella Pupp" 340 True
     , Entry 4 "Bowee Dee" 300 False
     ]
+    
+    
+    
+-- UPDATE 
+
+type Msg = NewGame 
+
+update : Msg -> Model -> Model
+update msg model = 
+    case msg of 
+      NewGame -> 
+        { model | gameNumber = model.gameNumber + 1 }
 
 -- VIEW
 
@@ -36,7 +50,7 @@ playerInfo : String -> Int -> String
 playerInfo name gameNumber =
     name ++ " Game number " ++ (toString gameNumber)
 
-viewPlayer : String -> Int -> Html msg 
+viewPlayer : String -> Int -> Html Msg
 viewPlayer name gameNumber =
    let
     playerInfoText =
@@ -47,26 +61,26 @@ viewPlayer name gameNumber =
     h2 [ id "info", class "classy"]
     [ playerInfoText ]
 
-viewHeader : String -> Html msg
+viewHeader : String -> Html Msg
 viewHeader title =
    header [] 
    [ h1 [] [ text title ] ]
 
-viewFooter : Html msg
+viewFooter : Html Msg
 viewFooter =
    footer [] 
    [a [href "http://github.com/zacck"]
       [text "Built by Zacck"]
    ]
   
-viewEntryItem : Entry -> Html msg
+viewEntryItem : Entry -> Html Msg
 viewEntryItem item = 
   li []
     [ span [ class "phrase" ][ text item.phrase ]
     , span [ class "points" ][ text (toString item.points)]
     ]
 
-viewEntryList : List Entry -> Html msg
+viewEntryList : List Entry -> Html Msg
 viewEntryList entries = 
   let 
     entryItems = 
@@ -74,15 +88,24 @@ viewEntryList entries =
   in
     ul [] entryItems
   
-view : Model -> Html msg
+view : Model -> Html Msg
 view model =
     div [ class "content" ]
     [ viewHeader "MOFO Bingo"
     , viewPlayer model.name model.gameNumber
     , viewEntryList model.entries
+    , div [ class "button-group" ]
+          [ button [ onClick NewGame ] [ text "New Game"] ]
     , viewFooter
     ]
 
-main : Html msg
-main =
-   view initialModel
+-- main : Html Msg
+-- main =
+--    view initialModel
+main : Program Never Model Msg 
+main = 
+  Html.beginnerProgram
+    { model =  initialModel
+    , view = view
+    , update = update
+    }
