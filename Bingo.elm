@@ -132,8 +132,9 @@ view model =
 --    view initialModel
 main : Program Never Model Msg
 main =
-  Html.beginnerProgram
-    { model =  initialModel
+  Html.program
+    { init =  ( initialModel, Cmd.none )
     , view = view
     , update = update
+    , subscriptions = (\_ -> Sub.none)
     }
