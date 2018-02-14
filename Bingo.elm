@@ -1,57 +1,57 @@
 module Bingo exposing (..)
 
-import Html exposing (..) 
+import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing(onClick)
 
 
-type alias Model = 
+type alias Model =
   { name  : String
-  , gameNumber : Int 
+  , gameNumber : Int
   , entries: List Entry
   }
-  
-type alias Entry = 
+
+type alias Entry =
   { id : Int
   , phrase : String
   , points : Int
   , marked :  Bool
   }
--- MODEL 
+-- MODEL
 initialModel : Model
-initialModel = 
+initialModel =
     { name = "Zacck"
-    , gameNumber = 1 
+    , gameNumber = 1
     , entries = initialEntries
     }
 initialEntries : List Entry
-initialEntries = 
+initialEntries =
     List.sortBy .points
     [ Entry  1 "Wacky Wack" 230 False
-    , Entry 2 "Johny Cee" 220 False 
+    , Entry 2 "Johny Cee" 220 False
     , Entry 3 "Stella Pupp" 3400 True
     , Entry 4 "Bowee Dee" 300 False
     ]
-    
-    
-    
--- UPDATE 
+
+
+
+-- UPDATE
 
 type Msg = NewGame | Mark Int
 
 update : Msg -> Model -> Model
-update msg model = 
-    case msg of 
-      NewGame -> 
-        { model | gameNumber = model.gameNumber + 1, 
+update msg model =
+    case msg of
+      NewGame ->
+        { model | gameNumber = model.gameNumber + 1,
                   entries = initialEntries }
       Mark id ->
-        let 
-          markEntry e = 
-            if e.id == id then 
+        let
+          markEntry e =
+            if e.id == id then
               { e | marked = (not e.marked)}
             else
-              e  
+              e
         in
           { model | entries = List.map markEntry model.entries }
 
@@ -65,57 +65,56 @@ viewPlayer : String -> Int -> Html Msg
 viewPlayer name gameNumber =
    let
     playerInfoText =
-    playerInfo name gameNumber 
+    playerInfo name gameNumber
         |> String.toUpper
         |> text
-   in   
+   in
     h2 [ id "info", class "classy"]
     [ playerInfoText ]
 
 viewHeader : String -> Html Msg
 viewHeader title =
-   header [] 
+   header []
    [ h1 [] [ text title ] ]
 
 viewFooter : Html Msg
 viewFooter =
-   footer [] 
+   footer []
    [a [href "http://github.com/zacck"]
       [text "Built by Zacck"]
    ]
-  
+
 viewEntryItem : Entry -> Html Msg
-viewEntryItem item = 
+viewEntryItem item =
   li [  classList [ ("marked", item.marked) ], onClick (Mark item.id) ]
     [ span [ class "phrase" ][ text item.phrase ]
     , span [ class "points" ][ text (toString item.points)]
     ]
 
 viewEntryList : List Entry -> Html Msg
-viewEntryList entries = 
-  let 
-    entryItems = 
+viewEntryList entries =
+  let
+    entryItems =
      List.map viewEntryItem entries
   in
     ul [] entryItems
-    
+
 sumMarkedPoints : List Entry -> Int
 sumMarkedPoints entries =
-      entries 
-        |> List.filter .marked 
-        |> List.map .points
-        |> List.sum 
-        
+      entries
+      |> List.filter .marked
+      |> List.foldl(\entry sum -> sum + entry.points) 0
+
 viewScore : Int -> Html Msg
-viewScore sum = 
+viewScore sum =
     div
         [ class "score" ]
         [ span [ class "label"] [ text "Score" ]
         , span [ class "value"] [ text (toString sum) ]
         ]
-  
 
-  
+
+
 view : Model -> Html Msg
 view model =
     div [ class "content" ]
@@ -131,8 +130,8 @@ view model =
 -- main : Html Msg
 -- main =
 --    view initialModel
-main : Program Never Model Msg 
-main = 
+main : Program Never Model Msg
+main =
   Html.beginnerProgram
     { model =  initialModel
     , view = view
