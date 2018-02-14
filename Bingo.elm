@@ -141,7 +141,7 @@ view model =
 main : Program Never Model Msg
 main =
   Html.program
-    { init =  ( initialModel, Cmd.none )
+    { init =  ( initialModel, generateRandomNumber )
     , view = view
     , update = update
     , subscriptions = (\_ -> Sub.none)
