@@ -1,6 +1,7 @@
 module Bingo exposing (..)
 
 import Html exposing (..)
+import Random exposing(..)
 import Html.Attributes exposing (..)
 import Html.Events exposing(onClick)
 
@@ -37,14 +38,15 @@ initialEntries =
 
 -- UPDATE
 
-type Msg = NewGame | Mark Int
+type Msg = NewGame | Mark Int | NewRandom Int
 
-update : Msg -> Model -> ( Model | Cmd Msg )
+update : Msg -> Model -> ( Model , Cmd Msg )
 update msg model =
     case msg of
+      NewRandom  randomNumber ->
+        ( { model | gameNumber = randomNumber }, Cmd.none )
       NewGame ->
-        ( { model | gameNumber = model.gameNumber + 1,
-                  entries = initialEntries }, Cmd.none )
+        ( { model | entries = initialEntries }, generateRandomNumber )
       Mark id ->
         let
           markEntry e =
@@ -54,6 +56,12 @@ update msg model =
               e
         in
           ( { model | entries = List.map markEntry model.entries }, Cmd.none )
+
+-- COMMANDS
+
+generateRandomNumber : Cmd Msg
+generateRandomNumber =
+    Random.generate NewRandom (Random.int 1 100)
 
 -- VIEW
 
