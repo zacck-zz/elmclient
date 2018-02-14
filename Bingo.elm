@@ -39,12 +39,12 @@ initialEntries =
 
 type Msg = NewGame | Mark Int
 
-update : Msg -> Model -> Model
+update : Msg -> Model -> ( Model | Cmd Msg )
 update msg model =
     case msg of
       NewGame ->
-        { model | gameNumber = model.gameNumber + 1,
-                  entries = initialEntries }
+        ( { model | gameNumber = model.gameNumber + 1,
+                  entries = initialEntries }, Cmd.none )
       Mark id ->
         let
           markEntry e =
@@ -53,7 +53,7 @@ update msg model =
             else
               e
         in
-          { model | entries = List.map markEntry model.entries }
+          ( { model | entries = List.map markEntry model.entries }, Cmd.none )
 
 -- VIEW
 
