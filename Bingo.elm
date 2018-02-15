@@ -5,6 +5,7 @@ import Random exposing(..)
 import Html.Attributes exposing (..)
 import Html.Events exposing(onClick)
 import Http
+import Json.Decode as Decode exposing(Decoder, field, succeed)
 
 
 type alias Model =
@@ -33,7 +34,7 @@ initialModel =
 
 -- UPDATE
 
-type Msg = NewGame | Mark Int | NewRandom Int | NewEntries (Result Http.Error String) 
+type Msg = NewGame | Mark Int | NewRandom Int | NewEntries (Result Http.Error (List Entry)) 
 
 update : Msg -> Model -> ( Model , Cmd Msg )
 update msg model =
@@ -42,11 +43,8 @@ update msg model =
         ( { model | gameNumber = randomNumber }, Cmd.none )
       NewGame ->
         ( { model | gameNumber  = model.gameNumber + 1 }, getEntries )
-      NewEntries (Ok jsonString) ->
-        let
-          _ = Debug.log "Wow this is cool!" jsonString
-        in 
-          (model, Cmd.none)
+      NewEntries (Ok randomEntries) ->
+          ({ model | entries = randomEntries }, Cmd.none)
       NewEntries (Err error) ->
         let
           _ = Debug.log "Ouch" error
@@ -61,6 +59,22 @@ update msg model =
               e
         in
           ( { model | entries = List.map markEntry model.entries }, Cmd.none )
+          
+
+          
+-- DECODERS 
+
+entryListDecoder : Decoder (List Entry)
+entryListDecoder =
+  Decode.list entryDecoder 
+
+entryDecoder  :  Decoder Entry 
+entryDecoder = 
+  Decode.map4 Entry
+      (field "id" Decode.int)
+      (field "phrase" Decode.string)
+      (field "points" Decode.int)
+      (succeed False)
 
 -- COMMANDS
 
@@ -74,8 +88,8 @@ entriesUrl =
     
 getEntries : Cmd Msg
 getEntries =
-    entriesUrl 
-        |> Http.getString
+    entryListDecoder 
+        |> Http.get entriesUrl
         |> Http.send NewEntries
   
 
