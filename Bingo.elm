@@ -4,6 +4,7 @@ import Html exposing (..)
 import Random exposing(..)
 import Html.Attributes exposing (..)
 import Html.Events exposing(onClick)
+import Http
 
 
 type alias Model =
@@ -18,27 +19,21 @@ type alias Entry =
   , points : Int
   , marked :  Bool
   }
+  
 -- MODEL
 initialModel : Model
 initialModel =
-    { name = "Zacck"
-    , gameNumber = 1
-    , entries = initialEntries
-    }
-initialEntries : List Entry
-initialEntries =
-    List.sortBy .points
-    [ Entry  1 "Wacky Wack" 230 False
-    , Entry 2 "Johny Cee" 220 False
-    , Entry 3 "Stella Pupp" 3400 True
-    , Entry 4 "Bowee Dee" 300 False
-    ]
+  { name = "Zacck"
+  , gameNumber = 1
+  , entries = []
+  }
+
 
 
 
 -- UPDATE
 
-type Msg = NewGame | Mark Int | NewRandom Int
+type Msg = NewGame | Mark Int | NewRandom Int | NewEntries (Result Http.Error String) 
 
 update : Msg -> Model -> ( Model , Cmd Msg )
 update msg model =
@@ -46,7 +41,17 @@ update msg model =
       NewRandom  randomNumber ->
         ( { model | gameNumber = randomNumber }, Cmd.none )
       NewGame ->
-        ( { model | entries = initialEntries }, generateRandomNumber )
+        ( { model | gameNumber  = model.gameNumber + 1 }, getEntries )
+      NewEntries (Ok jsonString) ->
+        let
+          _ = Debug.log "Wow this is cool!" jsonString
+        in 
+          (model, Cmd.none)
+      NewEntries (Err error) ->
+        let
+          _ = Debug.log "Ouch" error
+        in 
+          (model, Cmd.none)
       Mark id ->
         let
           markEntry e =
@@ -62,6 +67,17 @@ update msg model =
 generateRandomNumber : Cmd Msg
 generateRandomNumber =
     Random.generate NewRandom (Random.int 1 100)
+    
+entriesUrl : String
+entriesUrl = 
+    "http://localhost:3000/random-entries"
+    
+getEntries : Cmd Msg
+getEntries =
+    entriesUrl 
+        |> Http.getString
+        |> Http.send NewEntries
+  
 
 -- VIEW
 
@@ -141,7 +157,7 @@ view model =
 main : Program Never Model Msg
 main =
   Html.program
-    { init =  ( initialModel, generateRandomNumber )
+    { init =  ( initialModel, getEntries )
     , view = view
     , update = update
     , subscriptions = (\_ -> Sub.none)
