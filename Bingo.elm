@@ -44,7 +44,7 @@ update msg model =
       NewGame ->
         ( { model | gameNumber  = model.gameNumber + 1 }, getEntries )
       NewEntries (Ok randomEntries) ->
-          ({ model | entries = randomEntries }, Cmd.none)
+          ({ model | entries = List.sortBy .points randomEntries }, Cmd.none)
       NewEntries (Err error) ->
         let
           _ = Debug.log "Ouch" error
@@ -156,9 +156,9 @@ viewScore sum =
 view : Model -> Html Msg
 view model =
     div [ class "content" ]
-    [ viewHeader "MOFO Bingo"
+    [ viewHeader "Bingo"
     , viewPlayer model.name model.gameNumber
-    , viewEntryList model.entries
+    , viewEntryList  model.entries
     , viewScore (sumMarkedPoints model.entries)
     , div [ class "button-group" ]
           [ button [ onClick NewGame ] [ text "New Game"] ]
@@ -171,7 +171,7 @@ view model =
 main : Program Never Model Msg
 main =
   Html.program
-    { init =  ( initialModel, getEntries )
+    { init =  ( initialModel,  getEntries )
     , view = view
     , update = update
     , subscriptions = (\_ -> Sub.none)
