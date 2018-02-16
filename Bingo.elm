@@ -12,6 +12,7 @@ type alias Model =
   { name  : String
   , gameNumber : Int
   , entries: List Entry
+  , alertMessage: Maybe String
   }
 
 type alias Entry =
@@ -20,13 +21,14 @@ type alias Entry =
   , points : Int
   , marked :  Bool
   }
-  
+
 -- MODEL
 initialModel : Model
 initialModel =
   { name = "Zacck"
   , gameNumber = 1
   , entries = []
+  , alertMessage = Nothing
   }
 
 
@@ -34,7 +36,12 @@ initialModel =
 
 -- UPDATE
 
-type Msg = NewGame | Mark Int | NewRandom Int | NewEntries (Result Http.Error (List Entry)) 
+type Msg
+    = NewGame
+    | Mark Int
+    | NewRandom Int
+    | NewEntries (Result Http.Error (List Entry))
+    | CloseAlert
 
 update : Msg -> Model -> ( Model , Cmd Msg )
 update msg model =
@@ -47,9 +54,20 @@ update msg model =
           ({ model | entries = List.sortBy .points randomEntries }, Cmd.none)
       NewEntries (Err error) ->
         let
-          _ = Debug.log "Ouch" error
-        in 
-          (model, Cmd.none)
+          errorMessage =
+            case error of
+              Http.NetworkError ->
+                "Is the Server Running"
+
+              Http.BadStatus response ->
+                (toString response.status)
+
+              Http.BadPayload message _ ->
+                "Decoding Failed: " ++ message
+              _ ->
+                (toString error)
+        in
+          ( { model | alertMessage = Just errorMessage }, Cmd.none)
       Mark id ->
         let
           markEntry e =
@@ -59,21 +77,23 @@ update msg model =
               e
         in
           ( { model | entries = List.map markEntry model.entries }, Cmd.none )
-          
+      CloseAlert ->
+        ({ model | alertMessage = Nothing}, Cmd.none)
 
-          
--- DECODERS 
+
+
+-- DECODERS
 
 entryListDecoder : Decoder (List Entry)
 entryListDecoder =
-  Decode.list entryDecoder 
+  Decode.list entryDecoder
 
-entryDecoder  :  Decoder Entry 
-entryDecoder = 
+entryDecoder  :  Decoder Entry
+entryDecoder =
   Decode.map4 Entry
       (field "id" Decode.int)
       (field "phrase" Decode.string)
-      (field "points" Decode.int)
+      (field "point" Decode.int)
       (succeed False)
 
 -- COMMANDS
@@ -81,17 +101,17 @@ entryDecoder =
 generateRandomNumber : Cmd Msg
 generateRandomNumber =
     Random.generate NewRandom (Random.int 1 100)
-    
+
 entriesUrl : String
-entriesUrl = 
+entriesUrl =
     "http://localhost:3000/random-entries"
-    
+
 getEntries : Cmd Msg
 getEntries =
-    entryListDecoder 
+    entryListDecoder
         |> Http.get entriesUrl
         |> Http.send NewEntries
-  
+
 
 -- VIEW
 
@@ -158,12 +178,23 @@ view model =
     div [ class "content" ]
     [ viewHeader "Bingo"
     , viewPlayer model.name model.gameNumber
+    , viewAlertMessage model.alertMessage
     , viewEntryList  model.entries
     , viewScore (sumMarkedPoints model.entries)
     , div [ class "button-group" ]
           [ button [ onClick NewGame ] [ text "New Game"] ]
     , viewFooter
     ]
+
+viewAlertMessage : Maybe String -> Html Msg
+viewAlertMessage alertMessage =
+  case alertMessage of
+    Just message ->
+        div [ class "alert"]
+            [ span [ class "close", onClick CloseAlert ] [text "X"]
+            ,text message]
+    Nothing ->
+        text ""
 
 -- main : Html Msg
 -- main =
