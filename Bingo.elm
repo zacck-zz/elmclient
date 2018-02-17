@@ -7,6 +7,7 @@ import Html.Events exposing(onClick, onInput)
 import Http
 import Json.Decode as Decode exposing(Decoder, field, succeed)
 import Json.Encode as Encode
+import ViewHelpers exposing(..)
 
 
 type GameState = EnteringName | Playing
@@ -254,13 +255,13 @@ view model =
     div [ class "content" ]
     [ viewHeader "Bingo"
     , viewPlayer model.name model.gameNumber
-    , viewAlertMessage model.alertMessage
+    , viewAlertMessage CloseAlert model.alertMessage
     , viewNameInput model
     , viewEntryList  model.entries
     , viewScore (sumMarkedPoints model.entries)
     , div [ class "button-group" ]
-          [ button [ onClick NewGame ] [ text "New Game"]
-          , button [ onClick ShareScore, disabled (isScoreZero model) ] [ text "Share Score" ]
+          [ primaryButton NewGame "New Game"
+          , primaryButton ShareScore "Share Score"
           ]
     , viewFooter
     ]
@@ -278,22 +279,13 @@ viewNameInput model =
               , onInput SetNameInput
               ]
               []
-            , button [ onClick SaveName ] [text "Save" ]
-            , button [ onClick CancelName ] [text "Cancel"]
+            , primaryButton SaveName "Save"
+            , primaryButton SaveName "Cancel"
           ]
     Playing ->
       text ""
 
 
-viewAlertMessage : Maybe String -> Html Msg
-viewAlertMessage alertMessage =
-  case alertMessage of
-    Just message ->
-        div [ class "alert"]
-            [ span [ class "close", onClick CloseAlert ] [text "X"]
-            ,text message]
-    Nothing ->
-        text ""
 
 -- main : Html Msg
 -- main =
