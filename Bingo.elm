@@ -167,14 +167,17 @@ postScore model =
       encodeScore model
           |> Http.jsonBody
 
-
-
     request =
       Http.post url body scoreDecoder
   in
     Http.send NewScore request
 
 -- VIEW
+
+isScoreZero : Model -> Bool
+isScoreZero model =
+  (sumMarkedPoints model.entries) == 0
+
 
 playerInfo : String -> Int -> String
 playerInfo name gameNumber =
@@ -244,7 +247,7 @@ view model =
     , viewScore (sumMarkedPoints model.entries)
     , div [ class "button-group" ]
           [ button [ onClick NewGame ] [ text "New Game"]
-          , button [ onClick ShareScore ] [ text "Share Score" ]
+          , button [ onClick ShareScore, disabled (isScoreZero model) ] [ text "Share Score" ]
           ]
     , viewFooter
     ]
