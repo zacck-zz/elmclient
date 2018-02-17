@@ -109,8 +109,6 @@ update msg model =
 
 
 -- DECODERS/ENCODERS
-
-
 entryListDecoder : Decoder (List Entry)
 entryListDecoder =
   Decode.list entryDecoder
@@ -143,9 +141,13 @@ generateRandomNumber : Cmd Msg
 generateRandomNumber =
     Random.generate NewRandom (Random.int 1 100)
 
+apiUrlPrefix : String
+apiUrlPrefix =
+  "http://localhost:3000/"
+
 entriesUrl : String
 entriesUrl =
-    "http://localhost:3000/random-entries"
+    apiUrlPrefix ++ "random-entries"
 
 getEntries : Cmd Msg
 getEntries =
@@ -153,11 +155,13 @@ getEntries =
         |> Http.get entriesUrl
         |> Http.send NewEntries
 
+
+
 postScore : Model -> Cmd Msg
 postScore model =
   let
     url =
-      "http://localhost:3000/scores"
+      apiUrlPrefix ++ "/scores"
 
     body =
       encodeScore model
